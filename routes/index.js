@@ -59,19 +59,17 @@ router.post('/',async(req,res)=>{
         req.session.err = null;
         res.redirect('/');
       })
+      .then(()=>{
+          console.log("Here")
+        fs.unlinkSync(`./${req.file.path}`);
+      })
       .catch(()=>{
           req.session.err = 'Internal server error'
           res.redirect('/')
       })
-
-      
-
       
       
      
-
-     
-
     })
 
     
