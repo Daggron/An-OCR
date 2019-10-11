@@ -21,7 +21,10 @@ const upload = multer({
 
 
 router.get('/',(req,res)=>{
-    res.render('index.ejs');
+    res.render('index.ejs',{
+        data:req.session.data
+    });
+    req.session.data = null;
 })
 
 router.post('/',async(req,res)=>{
@@ -42,11 +45,11 @@ router.post('/',async(req,res)=>{
           console.log(progress)
       })
       .then(result=>{
-        res.send(result.text)
-          
+        req.session.data = result.text
+        res.redirect('/');
       })
-      .then(()=>{
-       
+      .catch(()=>{
+          console.log("Hola");
       })
 
       
