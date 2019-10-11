@@ -22,13 +22,21 @@ const upload = multer({
 
 router.get('/',(req,res)=>{
     res.render('index.ejs',{
-        data:req.session.data
+        data:req.session.data,
+        error:req.session.err
     });
     req.session.data = null;
+    req.session.err = null;
 })
 
 router.post('/',async(req,res)=>{
     upload(req,res,async ()=>{
+
+        req.session.err = null;
+        if(req.file === undefined){
+            req.session.err = 'Please select a file'
+           return  res.redirect('/');
+        }
 
       let data = await fs.readFileSync(`./Uploads/${req.file.filename}`,{
           encoding:null
@@ -37,19 +45,23 @@ router.post('/',async(req,res)=>{
 
       if(data===null){
           console.log(err);
-          res.send("OOpsie");
+          req.session.err="OOpsie their is some error";
+          res.redirect('/')
       }
 
       tesseract.recognize(data)
       .progress(progress=>{
+          req.session.err = null;
           console.log(progress)
       })
       .then(result=>{
-        req.session.data = result.text
+        req.session.data = result.text;
+        req.session.err = null;
         res.redirect('/');
       })
       .catch(()=>{
-          console.log("Hola");
+          req.session.err = 'Internal server error'
+          res.redirect('/')
       })
 
       
